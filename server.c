@@ -5,6 +5,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+
+void error(char* message){
+	perror(message);
+	exit(1);
+}
+
 int main(int argc, char *argv[]){
 
 	int sockfd, newsockfd, portno, clilen;
@@ -45,9 +51,9 @@ int main(int argc, char *argv[]){
 		error("ERROR on accept");
 	}
 
-	bzero(buffer,256);
+	bzero(buffer,256);//clear buffer
 
-	n = read(newsockfd,buffer,255);
+	n = read(newsockfd,buffer,255);//read into buffer and size of it is 255
 
 	if (n < 0){
 		error("ERROR reading from socket");
@@ -55,7 +61,7 @@ int main(int argc, char *argv[]){
 
 	printf("Here is the message: %s\n",buffer);
 
-	n = write(newsockfd,"I got your message",18);
+	n = write(newsockfd,"I got your message",18);//write to newsockfd(it has the client info)
 
 	if (n < 0){
 		error("ERROR writing to socket");
@@ -67,8 +73,4 @@ int main(int argc, char *argv[]){
 
 
 
-void error(char* message){
-	perror(msg);
-	exit(1);
-}
 
