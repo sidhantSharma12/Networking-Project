@@ -8,7 +8,8 @@ void error(char *msg){
 	perror(msg);
 	exit(0);
 }
-//first you connect to the server, and then write and read from the server
+//first you create a socket. Then you connect to the server, and then write and read from the server. 
+//This is different from server side where you bind and listen for connections.
 int main(int argc, char *argv[]){
 	int sockfd, portno, n;
 	struct sockaddr_in server_address;

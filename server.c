@@ -10,7 +10,9 @@ void error(char* message){
 	perror(message);
 	exit(1);
 }
-
+//first you create a socket. Then you bind that socket to an ip address and port
+//number where it can listen to connections. Then you accept a connection and then
+//you send or recieve data to other sockets it has connected to.
 int main(int argc, char *argv[]){
 
 	int sockfd, newsockfd, portno, clilen;
