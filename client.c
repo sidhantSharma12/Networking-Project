@@ -11,17 +11,17 @@ void error(char *msg){
 
 int main(int argc, char *argv[]){
 	int sockfd, portno, n;
-	struct sockaddr_in serv_addr;
+	struct sockaddr_in server_address;
 	struct hostent* server;
 
 	char buffer[256];
 
-	if (argc < 3){
+	if (argc < 2){
 		fprintf(stderr,"usage %s hostname port\n", argv[0]);
 		exit(0);
 	}
 
-	portno = atoi(argv[2]);
+	portno = atoi(argv[1]);
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -29,20 +29,14 @@ int main(int argc, char *argv[]){
 		error("There was an error opening the socket");
 	}
 
-	server = gethostbyname(argv[1]);
+	bzero((char *) &server_address, sizeof(server_address));
+	server_address.sin_family = AF_INET;
 
-	if(server == NULL){
-		fprintf(stderr, "Error: no such host\n");
-	}
+	server_address.sin_addr.s_addr= INADDR_ANY;
 
-	bzero((char *) &serv_addr, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
+	server_address.sin_port = htons(portno);
 
-	bcopy((char *)server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
-
-	serv_addr.sin_port = htons(portno);
-
-	if (connect(sockfd,&serv_addr,sizeof(serv_addr)) < 0){
+	if (connect(sockfd,&server_address,sizeof(server_address)) < 0){
 		error("ERROR connecting");
 	}
 
