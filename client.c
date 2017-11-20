@@ -8,7 +8,7 @@ void error(char *msg){
 	perror(msg);
 	exit(0);
 }
-
+//first you connect to the server, and then write and read from the server
 int main(int argc, char *argv[]){
 	int sockfd, portno, n;
 	struct sockaddr_in server_address;
