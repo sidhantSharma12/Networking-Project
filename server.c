@@ -12,10 +12,12 @@ void error(char* message){
 }
 //first you create a socket. Then you bind that socket to an ip address and port
 //number where it can listen to connections. Then you accept a connection and then
-//you send or recieve data to other sockets it has connected to.
+//you send or recieve data to other sockets it has connected to. Accept function allows
+//you to get another socket which lets you call functions on that socket such as write.
+//Whenever you do read or write, its writing to that socket or reading from that socket.
 int main(int argc, char *argv[]){
 
-	int sockfd, newsockfd, portno, clilen;
+	int serverSocket, clientSocket, portno, clilen;
 	char buffer[256];
 	struct sockaddr_in serv_addr, cli_addr;
 	int n;
@@ -25,9 +27,9 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);// AF_INET: using concept of ip address. SOCK_STREAM: Using tcp
+	serverSocket = socket(AF_INET, SOCK_STREAM, 0);// AF_INET: using concept of ip address. SOCK_STREAM: Using tcp
 
-	if (sockfd < 0){
+	if (serverSocket < 0){
 		error("ERROR opening socket");
 	}
 
@@ -40,22 +42,23 @@ int main(int argc, char *argv[]){
 	serv_addr.sin_port = htons(portno);//converting to network format
 
 	//serv_addr variable has all the info now. Now bind the socket to the server address
-	if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){
+	if (bind(serverSocket, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0){
 		error("ERROR on binding");
 	}
 
-	listen(sockfd,5);//5 is how many clients you can handle
+	listen(serverSocket,5);//5 is how many clients you can handle
 	clilen = sizeof(cli_addr);
 
-	newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr, &clilen);//client address will now have all the values
+	clientSocket = accept(serverSocket,NULL, NULL);
+	//clientSocket = accept(serverSocket,(struct sockaddr *) &cli_addr, &clilen);//cli_addr will have all the info about the client connected
 
-	if (newsockfd < 0){
+	if (clientSocket < 0){
 		error("ERROR on accept");
 	}
 
 	bzero(buffer,256);//clear buffer
 
-	n = read(newsockfd,buffer,255);//read into buffer and size of it is 255
+	n = read(clientSocket,buffer,255);//read into buffer and size of it is 255
 
 	if (n < 0){
 		error("ERROR reading from socket");
@@ -63,11 +66,12 @@ int main(int argc, char *argv[]){
 
 	printf("Here is the message: %s\n",buffer);
 
-	n = write(newsockfd,"I got your message",18);//write to newsockfd(it has the client info)
+	n = write(clientSocket,"I got your message",18);//write to clientSocket(it has the client info)
 
 	if (n < 0){
 		error("ERROR writing to socket");
 	}
+	close(serverSocket);
 
 	return 0;
 }
