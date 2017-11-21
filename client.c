@@ -9,7 +9,8 @@ void error(char *msg){
 	exit(0);
 }
 //first you create a socket. Then you connect to the server, and then write and read from the server. 
-//This is different from server side where you bind and listen for connections.
+//This is different from server side where you bind and listen for connections. In client, the socket chooses
+//where its going to remotely connect to.
 int main(int argc, char *argv[]){
 	int sockfd, portno, n;
 	struct sockaddr_in server_address;
