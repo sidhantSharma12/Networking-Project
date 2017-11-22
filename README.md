@@ -1,1 +1,1 @@
-This repo contains a project related to networking.
+This project is about creating a load balancer using sockets in c.
