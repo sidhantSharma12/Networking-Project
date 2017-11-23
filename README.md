@@ -1,1 +1,1 @@
-This repo contains a project related to networking.
+This project is about creating a reverse proxy which will do load balancing using sockets in c.
