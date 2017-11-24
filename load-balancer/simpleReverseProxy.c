@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     struct addrinfo *addrIter;
     int getaddrinfo_error;
 
-    int server_socket_fd;
+    int serverSocketFd;
     int clientSocketFd;
 
     int so_reuseaddr;
@@ -109,19 +109,19 @@ int main(int argc, char *argv[]) {
 
     //try to bind so that we can accept incoming connections:
     for (addrIter = possibleAddresses; addrIter != NULL; addrIter = addrIter->ai_next) {
-        server_socket_fd = socket(addrIter->ai_family, addrIter->ai_socktype, addrIter->ai_protocol);
-        if (server_socket_fd == -1) {
+        serverSocketFd = socket(addrIter->ai_family, addrIter->ai_socktype, addrIter->ai_protocol);
+        if (serverSocketFd == -1) {
             continue;
         }
 
         so_reuseaddr = 1;
-        setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
+        setsockopt(serverSocketFd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
 
-        if (bind(server_socket_fd, addrIter->ai_addr, addrIter->ai_addrlen) == 0){
+        if (bind(serverSocketFd, addrIter->ai_addr, addrIter->ai_addrlen) == 0){
             break;
         }
 
-        close(server_socket_fd);
+        close(serverSocketFd);
     }
 
     if (addrIter == NULL) {
@@ -131,11 +131,11 @@ int main(int argc, char *argv[]) {
 
     freeaddrinfo(possibleAddresses);
 
-    listen(server_socket_fd, MAX_LISTEN_BACKLOG);
+    listen(serverSocketFd, MAX_LISTEN_BACKLOG);
     printf("Started.  Listening on port %s.\n", server_port_str);
 
     while (1) {
-        clientSocketFd = accept(server_socket_fd, NULL, NULL);
+        clientSocketFd = accept(serverSocketFd, NULL, NULL);
         if (clientSocketFd == -1) {
             perror("Could not accept");
             exit(1);
