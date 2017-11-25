@@ -8,7 +8,7 @@
 
 #define MAX_LISTEN_BACKLOG 1
 #define BUFFER_SIZE 4096
-
+//The steps to read, or to wait for incoming connections, are blocking calls. So multiple client connectins concurrrently is not possible in this code
                              //client socket connection
                              //address of backend connecting to
                              //port of the backend address
@@ -72,9 +72,9 @@ void handle_client_connection(int clientSocketFd, char *backendHost, char *portN
 
 
 int main(int argc, char *argv[]) {
-    char *server_port_str;
-    char *backendAddr;
-    char *portNumberBackend;
+    char* serverPortStr;//port number for the proxy
+    char* backendAddr;//domain of the backend
+    char* portNumberBackend;//port number of the backend
 
     struct addrinfo hints;//same hints as function
     struct addrinfo *possibleAddresses;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s <server_port> <backendAddr> <backend_port>\n", argv[0]);
         exit(1);
     }
-    server_port_str = argv[1];
+    serverPortStr = argv[1];
     backendAddr = argv[2];
     portNumberBackend = argv[3];
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
     hints.ai_flags = AI_PASSIVE;
     
     //AI_PASSIVE, combined with the NULL first parameter, tells getaddrinfo that we want to be able to run a server socket on this address
-    getaddrinfo_error = getaddrinfo(NULL, server_port_str, &hints, &possibleAddresses);
+    getaddrinfo_error = getaddrinfo(NULL, serverPortStr, &hints, &possibleAddresses);
 
     if (getaddrinfo_error != 0) {
         fprintf(stderr, "Couldn't find local host details: %s\n", gai_strerror(getaddrinfo_error));
@@ -130,9 +130,9 @@ int main(int argc, char *argv[]) {
     }
 
     freeaddrinfo(possibleAddresses);
-
+    //this marks the socket so its passive. It won't make connections but will listen to incoming connections
     listen(serverSocketFd, MAX_LISTEN_BACKLOG);
-    printf("Started.  Listening on port %s.\n", server_port_str);
+    printf("Started.  Listening on port %s.\n", serverPortStr);
 
     while (1) {
         clientSocketFd = accept(serverSocketFd, NULL, NULL);
