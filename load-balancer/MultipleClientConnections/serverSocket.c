@@ -21,11 +21,7 @@ struct server_socket_event_data {
 };
 
 
-void handle_client_connection(int epoll_fd,
-                              int client_socket_fd, 
-                              char* backend_host, 
-                              char* backend_port_str) 
-{
+void handle_client_connection(int epoll_fd,int client_socket_fd, char* backend_host, char* backend_port_str) {
 
     struct epoll_event_handler* client_socket_event_handler;
     client_socket_event_handler = create_client_socket_handler(client_socket_fd,
@@ -36,14 +32,14 @@ void handle_client_connection(int epoll_fd,
 
 }
 
-
-
-void handle_server_socket_event(struct epoll_event_handler* self, uint32_t events)
-{
+//callback handler
+void handle_server_socket_event(struct epoll_event_handler* self, uint32_t events){
+    //extract info from closure we set up for this handler
     struct server_socket_event_data* closure = (struct server_socket_event_data*) self->closure;
 
     int client_socket_fd;
     while (1) {
+        //accept incoming connections
         client_socket_fd = accept(self->fd, NULL, NULL);
         if (client_socket_fd == -1) {
             if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
@@ -54,16 +50,12 @@ void handle_server_socket_event(struct epoll_event_handler* self, uint32_t event
             }
         }
 
-        handle_client_connection(closure->epoll_fd,
-                                 client_socket_fd,
-                                 closure->backend_addr,
-                                 closure->backend_port_str);
+        handle_client_connection(closure->epoll_fd, client_socket_fd, closure->backend_addr, closure->backend_port_str);
     }
 }
 
 
-int create_and_bind(char* server_port_str)
-{
+int create_and_bind(char* server_port_str){
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_UNSPEC;
@@ -112,18 +104,17 @@ int create_and_bind(char* server_port_str)
 }
 
 
-struct epoll_event_handler* create_server_socket_handler(int epoll_fd,
-                                                         char* server_port_str,
-                                                         char* backend_addr,
-                                                         char* backend_port_str)
-{
+struct epoll_event_handler* create_server_socket_handler(int epoll_fd,char* server_port_str,char* backend_addr, char* backend_port_str){
 
     int server_socket_fd;
+    //same as the simple reverse proxy
     server_socket_fd = create_and_bind(server_port_str);
+    //we make the server socket non-blocking
     make_socket_non_blocking(server_socket_fd);
 
     listen(server_socket_fd, MAX_LISTEN_BACKLOG);
 
+    //contains all the information about epoll and backend structure that the callback will need
     struct server_socket_event_data* closure = malloc(sizeof(struct server_socket_event_data));
     closure->epoll_fd = epoll_fd;
     closure->backend_addr = backend_addr;
