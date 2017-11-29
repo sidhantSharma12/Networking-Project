@@ -54,7 +54,7 @@ void close_client_socket(struct epoll_event_handler* self){
     free(self);
 }
 
-struct epoll_event_handler* connect_to_backend(struct epoll_event_handler* client_handler, int epoll_fd, char* backend_host, char* backend_port_str){
+struct epoll_event_handler* connect_to_backend(struct epoll_event_handler* clientHandler, int epoll_fd, char* backend_host, char* backend_port_str){
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_UNSPEC;
@@ -74,20 +74,13 @@ struct epoll_event_handler* connect_to_backend(struct epoll_event_handler* clien
 
     int backend_socket_fd;
     struct addrinfo* addrs_iter;
-    for (addrs_iter = addrs;
-         addrs_iter != NULL;
-         addrs_iter = addrs_iter->ai_next)
-    {
-        backend_socket_fd = socket(addrs_iter->ai_family,
-                                   addrs_iter->ai_socktype,
-                                   addrs_iter->ai_protocol);
+    for (addrs_iter = addrs; addrs_iter != NULL; addrs_iter = addrs_iter->ai_next){
+        backend_socket_fd = socket(addrs_iter->ai_family, addrs_iter->ai_socktype, addrs_iter->ai_protocol);
         if (backend_socket_fd == -1) {
             continue;
         }
 
-        if (connect(backend_socket_fd,
-                    addrs_iter->ai_addr,
-                    addrs_iter->ai_addrlen) != -1) {
+        if (connect(backend_socket_fd, addrs_iter->ai_addr, addrs_iter->ai_addrlen) != -1) {
             break;
         }
 
@@ -102,7 +95,7 @@ struct epoll_event_handler* connect_to_backend(struct epoll_event_handler* clien
     freeaddrinfo(addrs);
 
     struct epoll_event_handler* backend_socket_event_handler;
-    backend_socket_event_handler = create_backend_socket_handler(backend_socket_fd, client_handler);
+    backend_socket_event_handler = create_backend_socket_handler(backend_socket_fd, clientHandler);
     add_epoll_handler(epoll_fd, backend_socket_event_handler, EPOLLIN | EPOLLRDHUP);
 
     return backend_socket_event_handler;
