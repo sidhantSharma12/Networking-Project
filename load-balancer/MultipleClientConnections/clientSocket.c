@@ -96,6 +96,7 @@ struct epoll_event_handler* connect_to_backend(struct epoll_event_handler* clien
 
     struct epoll_event_handler* backend_socket_event_handler;
     backend_socket_event_handler = create_backend_socket_handler(backend_socket_fd, clientHandler);
+    //add backend fd to epoll when its sending data
     add_epoll_handler(epoll_fd, backend_socket_event_handler, EPOLLIN | EPOLLRDHUP);
 
     return backend_socket_event_handler;
