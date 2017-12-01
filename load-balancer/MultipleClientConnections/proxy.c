@@ -7,7 +7,6 @@
 
 int main(int argc, char* argv[]){
     if (argc != 4) {
-        fprintf(stderr, "Usage: %s <server_port> <backendDomain> <backend_port>\n",  argv[0]);
         exit(1);
     }
     char* proxyPort = argv[1];
@@ -17,7 +16,6 @@ int main(int argc, char* argv[]){
     //epoll allows you to wait for stuff to happen on multiple file descriptors at a time
     int epoll_fd = epoll_create1(0);
     if (epoll_fd == -1) {
-        perror("Couldn't create epoll FD");
         exit(1);
     }
     //need to register some file descriptors with it to listen to
