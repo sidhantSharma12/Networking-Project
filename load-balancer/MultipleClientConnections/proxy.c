@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <sys/epoll.h>
 
-#include "epollinterface.h"
-#include "server_socket.h"
+#include "epol.h"
+#include "serverSocket.h"
 
 int main(int argc, char* argv[]){
     if (argc != 4) {
@@ -21,6 +21,8 @@ int main(int argc, char* argv[]){
     //need to register some file descriptors with it to listen to
     //first one is the one that will wait for incoming connections from clients
     struct epoll_event_handler* serverSocketEventHandler;
+
+    //RENAMEEEE TO PROXY SOCKET HANDLER
     serverSocketEventHandler = create_server_socket_handler(epoll_fd, proxyPort, backendDomain, backendPort);
 
     //callback function when an event occurs on an fd
@@ -28,6 +30,9 @@ int main(int argc, char* argv[]){
     add_epoll_handler(epoll_fd, serverSocketEventHandler, EPOLLIN);
 
     printf("Listening on port %s.\n", proxyPort);
+
+    //this does a while true loop. It will add more incoming client connections to epoll as well as backend to epoll, send data from backend to client based on events,
+    //and send data from client to backend due to events.
     do_reactor_loop(epoll_fd);
 
     return 0;

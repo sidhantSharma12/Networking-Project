@@ -6,12 +6,10 @@
 #include <sys/epoll.h>
 #include <netdb.h>
 #include <string.h>
-
-
 #include "netutils.h"
-#include "epollinterface.h"
-#include "backend_socket.h"
-#include "client_socket.h"
+#include "epol.h"
+#include "backendSocket.h"
+#include "clientSocket.h"
 
 #define BUFFER_SIZE 4096
 
@@ -45,7 +43,6 @@ void handle_client_socket_event(struct epoll_event_handler* self, uint32_t event
         close_client_socket(self);
         return;
     }
-
 }
 
 void close_client_socket(struct epoll_event_handler* self){

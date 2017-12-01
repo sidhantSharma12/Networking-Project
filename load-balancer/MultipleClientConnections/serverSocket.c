@@ -7,9 +7,9 @@
 #include <netdb.h>
 
 #include "netutils.h"
-#include "epollinterface.h"
-#include "server_socket.h"
-#include "client_socket.h"
+#include "epol.h"
+#include "serverSocket.h"
+#include "clientSocket.h"
 
 #define MAX_LISTEN_BACKLOG 4096
 
@@ -24,15 +24,12 @@ struct server_socket_event_data {
 void handle_client_connection(int epoll_fd,int client_socket_fd, char* backend_host, char* backend_port_str) {
 
     struct epoll_event_handler* client_socket_event_handler;
-    client_socket_event_handler = create_client_socket_handler(client_socket_fd,
-                                                               epoll_fd,
-                                                               backend_host,
-                                                               backend_port_str);
+    client_socket_event_handler = create_client_socket_handler(client_socket_fd, epoll_fd, backend_host, backend_port_str);
+    //add the client socket fd to epoll for any data incoming
     add_epoll_handler(epoll_fd, client_socket_event_handler, EPOLLIN | EPOLLRDHUP);
-
 }
 
-//callback handler
+//callback handler RENAME PROXY, all this function does is get the fd of client
 void handle_server_socket_event(struct epoll_event_handler* self, uint32_t events){
     //extract info from closure we set up for this handler
     struct server_socket_event_data* closure = (struct server_socket_event_data*) self->closure;
@@ -45,7 +42,6 @@ void handle_server_socket_event(struct epoll_event_handler* self, uint32_t event
             if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
                 break;
             } else {
-                perror("Could not accept");
                 exit(1);
             }
         }
@@ -66,7 +62,6 @@ int create_and_bind(char* server_port_str){
     int getaddrinfo_error;
     getaddrinfo_error = getaddrinfo(NULL, server_port_str, &hints, &addrs);
     if (getaddrinfo_error != 0) {
-        fprintf(stderr, "Couldn't find local host details: %s\n", gai_strerror(getaddrinfo_error));
         exit(1);
     }
 
@@ -94,7 +89,6 @@ int create_and_bind(char* server_port_str){
     }
 
     if (addr_iter == NULL) {
-        fprintf(stderr, "Couldn't bind\n");
         exit(1);
     }
 
