@@ -112,7 +112,7 @@ struct epoll_event_handler* create_server_socket_handler(int epoll_fd,char* serv
     //we make the server socket non-blocking
     make_socket_non_blocking(server_socket_fd);
 
-    listen(server_socket_fd, MAX_LISTEN_BACKLOG);
+    listen(server_socket_fd, MAX_LISTEN_BACKLOG);//we dont accept yet, that will be in the handler
 
     //contains all the information about epoll and backend structure that the callback will need
     struct server_socket_event_data* closure = malloc(sizeof(struct server_socket_event_data));
